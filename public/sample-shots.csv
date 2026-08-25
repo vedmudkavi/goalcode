@@ -1,0 +1,5 @@
+team,player,left,top,xg,result,minute
+home,A Striker,79,48,0.38,Goal,22
+home,B Winger,71,66,0.12,Saved,39
+away,C Forward,21,43,0.26,Saved,51
+away,D Midfielder,35,31,0.05,Off target,73

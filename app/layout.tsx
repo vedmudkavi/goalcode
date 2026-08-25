@@ -14,16 +14,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
-  title: 'PitchIQ — Football Match Intelligence',
+  title: 'GoalCode — Football Match Intelligence',
   description: 'Turn match events into clear shot maps, expected goals, and tactical insights.',
   openGraph: {
-    title: 'PitchIQ — Football Match Intelligence',
+    title: 'GoalCode — Football Match Intelligence',
     description: 'Turn match events into clear shot maps, expected goals, and tactical insights.',
-    images: [{ url: '/og.png', width: 1536, height: 1024, alt: 'PitchIQ Football Match Intelligence' }],
+    images: [{ url: '/og.png', width: 1536, height: 1024, alt: 'GoalCode Football Match Intelligence' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PitchIQ — Football Match Intelligence',
+    title: 'GoalCode — Football Match Intelligence',
     description: 'Turn match events into clear shot maps, expected goals, and tactical insights.',
     images: ['/og.png'],
   },

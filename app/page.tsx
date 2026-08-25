@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <a className="brand" href="#" aria-label="PitchIQ home"><span className="brand-mark">P</span><span>PitchIQ</span></a>
+        <a className="brand" href="#" aria-label="GoalCode home"><span className="brand-mark">G</span><span>GoalCode</span></a>
         <nav aria-label="Primary navigation"><a className="active" href="#overview">Overview</a><a href="#analysis">Analysis</a><a href="#players">Players</a></nav>
         <button className="upload-button" onClick={() => { setShowImport(true); setFileMessage(''); }}>＋ Import match</button>
       </header>
@@ -76,7 +76,7 @@ export default function Home() {
         <div className="eyebrow-row"><p className="eyebrow"><span /> Match intelligence lab</p><p className="demo-label">Demo data · Premier League</p></div>
         <div className="match-header">
           <div><p className="match-date">Sunday, 24 August · Full time</p><h1>Arsenal <em>2 — 1</em> Liverpool</h1><p className="venue">Emirates Stadium · London</p></div>
-          <div className="model-chip"><span>MODEL</span><strong>PitchIQ xG v1.0</strong><i>Live</i></div>
+          <div className="model-chip"><span>MODEL</span><strong>GoalCode xG v1.0</strong><i>Live</i></div>
         </div>
 
         <section className="metrics" aria-label="Match metrics">
@@ -128,7 +128,7 @@ export default function Home() {
         <section className="about-section">
           <p className="kicker">THE PROJECT</p>
           <h2>From raw events to a readable match story.</h2>
-          <p>PitchIQ is an interactive football analytics lab that turns shot and event data into expected-goals models, shot maps, momentum patterns, player impact rankings, and plain-language tactical insights. It is designed for analysts, coaches, scouts, journalists, and curious supporters who want to understand not only what happened—but why.</p>
+          <p>GoalCode is an interactive football analytics lab that turns shot and event data into expected-goals models, shot maps, momentum patterns, player impact rankings, and plain-language tactical insights. It is designed for analysts, coaches, scouts, journalists, and curious supporters who want to understand not only what happened—but why.</p>
           <div className="feature-list"><span>01 · Explore chances</span><span>02 · Compare teams</span><span>03 · Import data</span><span>04 · Explain the match</span></div>
         </section>
       </section>
@@ -137,7 +137,7 @@ export default function Home() {
         <section className="import-modal" role="dialog" aria-modal="true" aria-labelledby="import-title" onMouseDown={e => e.stopPropagation()}>
           <button className="modal-close" aria-label="Close import dialog" onClick={() => setShowImport(false)}>×</button>
           <p className="kicker">MATCH DATA</p><h2 id="import-title">Import a shot map</h2>
-          <p>Upload a CSV with one shot per row. PitchIQ will instantly redraw the map and recalculate the xG totals.</p>
+          <p>Upload a CSV with one shot per row. GoalCode will instantly redraw the map and recalculate the xG totals.</p>
           <label className="dropzone"><strong>Choose a CSV file</strong><span>team, player, left, top, xg, result, minute</span><input type="file" accept=".csv,text/csv" onChange={importCsv} /></label>
           <a className="sample-link" href="/sample-shots.csv" download>↓ Download sample CSV</a>
           {fileMessage && <p className={`file-message ${fileMessage.includes('success') ? 'success' : ''}`}>{fileMessage}</p>}

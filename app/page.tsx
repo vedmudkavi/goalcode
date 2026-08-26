@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 type TeamKey = 'home' | 'away';
 type Phase = 'starting' | 'possession' | 'defending' | 'late';
 type TerritoryMode = 'Possession' | 'Touches' | 'xT' | 'Progression' | 'Pressing';
+type TerritoryHalf = 'first' | 'second' | 'full';
 
 type Player = {
   id: string; name: string; short: string; number: number; position: string;
@@ -86,48 +87,53 @@ const goalStories = [
   { id:'salah', minute:81, score:'2–2', xg:'—', title:'Salah completes the counter-attack', detail:'Alexander-Arnold clipped the ball into Núñez’s run down the right. Núñez squared early and Salah arrived inside to side-foot beyond Raya.', assist:'Darwin Núñez', move:'Fast transition · 3 players', finish:'Left foot · first time', left:18, top:42 },
 ];
 
-const territory: Record<TerritoryMode, number[]> = {
-  Possession:[.42,.35,.18,-.18,-.42,-.55,.52,.38,.12,-.16,-.49,-.62,.58,.44,.20,-.25,-.55,-.68,.36,.30,.08,-.22,-.46,-.52],
-  Touches:[.30,.46,.32,-.12,-.38,-.48,.52,.62,.34,-.08,-.42,-.58,.60,.66,.40,-.18,-.48,-.64,.38,.49,.26,-.12,-.32,-.44],
-  xT:[.12,.28,.54,.22,-.30,-.58,.18,.44,.68,.30,-.34,-.62,.10,.36,.61,.20,-.43,-.70,.06,.18,.42,.12,-.28,-.50],
-  Progression:[.25,.42,.58,.08,-.35,-.55,.32,.55,.70,.18,-.40,-.66,.28,.50,.64,.10,-.46,-.73,.15,.34,.48,.05,-.30,-.58],
-  Pressing:[.48,.58,.36,-.05,-.30,-.44,.60,.72,.45,-.12,-.52,-.65,.42,.54,.30,-.22,-.62,-.76,.20,.32,.18,-.28,-.55,-.68],
+const territory: Record<TerritoryMode, Record<TeamKey, number[]>> = {
+  Possession:{home:[.25,.33,.42,.54,.70,.82,.28,.38,.50,.68,.84,.92,.20,.34,.48,.63,.77,.86],away:[.86,.74,.58,.42,.30,.22,.92,.82,.64,.48,.34,.25,.78,.70,.55,.38,.28,.18]},
+  Touches:{home:[.22,.35,.50,.68,.86,.94,.28,.42,.60,.78,.90,.98,.18,.34,.52,.72,.84,.92],away:[.92,.84,.72,.56,.40,.25,.98,.90,.80,.62,.44,.28,.88,.78,.66,.48,.32,.20]},
+  xT:{home:[.10,.22,.38,.62,.82,.96,.12,.28,.48,.72,.90,1,.08,.18,.34,.58,.78,.92],away:[.94,.80,.58,.36,.20,.10,1,.88,.68,.44,.26,.12,.90,.76,.54,.32,.18,.08]},
+  Progression:{home:[.14,.30,.48,.66,.84,.96,.18,.36,.58,.76,.92,1,.12,.28,.46,.68,.86,.94],away:[.96,.84,.66,.48,.30,.14,1,.92,.74,.56,.36,.18,.94,.82,.64,.44,.26,.12]},
+  Pressing:{home:[.30,.52,.76,.92,.72,.44,.38,.64,.88,1,.78,.50,.24,.48,.70,.86,.68,.38],away:[.42,.68,.86,.74,.52,.30,.50,.78,1,.90,.62,.38,.36,.58,.82,.70,.48,.24]},
 };
 
 const performanceCards = [
-  { id:'salah', badges:['🎯 Finisher','⚡ Progressive threat','🔥 Player of the match'], metrics:[['1','Goal'],['2','Take-ons'],['90','Minutes']] },
-  { id:'rice', badges:['🧠 Creator','🧱 Defensive wall'], metrics:[['1','Assist'],['2','Chances created'],['90','Minutes']] },
-  { id:'saka', badges:['🎯 Finisher','🔥 High influence'], metrics:[['1','Goal'],['0.20','xG'],['84','Minutes']] },
-  { id:'vandijk', badges:['🎯 Set-piece threat','🧱 Defensive wall'], metrics:[['1','Goal'],['7.6','Rating'],['90','Minutes']] },
-  { id:'merino', badges:['🎯 Finisher','🔥 High influence'], metrics:[['1','Goal'],['0.40','xG'],['1','Shot on target']] },
-  { id:'white', badges:['🧠 Build-up leader','⚡ Line breaker'], metrics:[['1','Assist'],['7.2','Rating'],['90','Minutes']] },
+  { id:'salah', badges:[{icon:'🎯',label:'Finisher'},{icon:'⚡',label:'Progressive threat'},{icon:'🔥',label:'Player of the match'}], metrics:[['1','Goal'],['2','Take-ons'],['90','Minutes']] },
+  { id:'rice', badges:[{icon:'🧠',label:'Creator'},{icon:'🧱',label:'Defensive wall'}], metrics:[['1','Assist'],['2','Chances created'],['90','Minutes']] },
+  { id:'saka', badges:[{icon:'🎯',label:'Finisher'},{icon:'🔥',label:'High influence'}], metrics:[['1','Goal'],['0.20','xG'],['84','Minutes']] },
 ];
 
 const goalPaths: Record<string, { x:number; y:number; actor:string; action:string }[]> = {
   saka:[
-    { x:37, y:64, actor:'Ben White', action:'Long pass starts the move' },
-    { x:67, y:34, actor:'Bukayo Saka', action:'Controls in the right channel' },
-    { x:84, y:36, actor:'Bukayo Saka', action:'Beats Robertson and scores' },
+    { x:28, y:68, actor:'Ben White', action:'Receives in Arsenal’s half' },
+    { x:39, y:62, actor:'Ben White', action:'Looks up and launches long' },
+    { x:68, y:35, actor:'Bukayo Saka', action:'Controls in the right channel' },
+    { x:83, y:38, actor:'Bukayo Saka', action:'Cuts inside Robertson' },
+    { x:97, y:50, actor:'Bukayo Saka', action:'Ball hits the net — GOAL!' },
   ],
   vandijk:[
-    { x:35, y:8, actor:'Alexander-Arnold', action:'Corner delivered' },
-    { x:21, y:38, actor:'Luis Díaz', action:'Near-post flick' },
-    { x:17, y:49, actor:'Virgil van Dijk', action:'Close-range header' },
+    { x:28, y:8, actor:'Alexander-Arnold', action:'Sets the corner' },
+    { x:24, y:24, actor:'Alexander-Arnold', action:'Drives it to the near post' },
+    { x:20, y:39, actor:'Luis Díaz', action:'Flicks the ball across goal' },
+    { x:14, y:47, actor:'Virgil van Dijk', action:'Meets it with a header' },
+    { x:3, y:50, actor:'Virgil van Dijk', action:'Ball reaches the corner — GOAL!' },
   ],
   merino:[
-    { x:62, y:78, actor:'Declan Rice', action:'Whipped free-kick' },
-    { x:74, y:62, actor:'Mikel Merino', action:'Attacks the back shoulder' },
-    { x:82, y:55, actor:'Mikel Merino', action:'Heads Arsenal in front' },
+    { x:60, y:80, actor:'Declan Rice', action:'Places the wide free-kick' },
+    { x:68, y:70, actor:'Declan Rice', action:'Whips it across the line' },
+    { x:77, y:60, actor:'Mikel Merino', action:'Runs beyond the back shoulder' },
+    { x:86, y:54, actor:'Mikel Merino', action:'Powers the header goalward' },
+    { x:97, y:50, actor:'Mikel Merino', action:'Ball crosses the line — GOAL!' },
   ],
   salah:[
-    { x:61, y:20, actor:'Alexander-Arnold', action:'Clipped forward pass' },
-    { x:34, y:20, actor:'Darwin Núñez', action:'Chases and squares' },
-    { x:18, y:42, actor:'Mohamed Salah', action:'First-time equaliser' },
+    { x:66, y:24, actor:'Alexander-Arnold', action:'Wins the ball and looks forward' },
+    { x:53, y:22, actor:'Alexander-Arnold', action:'Clips the pass into space' },
+    { x:34, y:25, actor:'Darwin Núñez', action:'Carries down the right' },
+    { x:18, y:40, actor:'Mohamed Salah', action:'Arrives for the square pass' },
+    { x:3, y:50, actor:'Mohamed Salah', action:'First-time finish — GOAL!' },
   ],
 };
 
 function Crest({ team, large=false }: { team:TeamKey; large?:boolean }) {
-  return <span className={`crest ${team} ${large ? 'large' : ''}`}><b>{team === 'home' ? 'A' : 'L'}</b><small>{team === 'home' ? '1886' : '1892'}</small></span>;
+  return <span className={`crest club-crest ${team} ${large ? 'large' : ''}`}><img src={team === 'home' ? '/arsenal-crest.png' : '/liverpool-crest.svg'} alt={team === 'home' ? 'Arsenal crest' : 'Liverpool crest'}/></span>;
 }
 
 export default function Home() {
@@ -135,6 +141,7 @@ export default function Home() {
   const [phase, setPhase] = useState<Phase>('starting');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [territoryMode, setTerritoryMode] = useState<TerritoryMode>('Possession');
+  const [territoryHalf, setTerritoryHalf] = useState<TerritoryHalf>('first');
   const [selectedGoal, setSelectedGoal] = useState(0);
   const [goalStep, setGoalStep] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -144,6 +151,7 @@ export default function Home() {
   const selectedGoalStory = goalStories[selectedGoal];
   const selectedScorer = allPlayers.find(player => player.id === selectedGoalStory.id)!;
   const selectedPath = goalPaths[selectedGoalStory.id];
+  const goalComplete = goalStep === selectedPath.length - 1;
 
   useEffect(() => {
     if (!playing) return;
@@ -154,9 +162,22 @@ export default function Home() {
     return () => window.clearTimeout(timer);
   }, [playing, goalStep, selectedPath.length]);
 
-  function zoneStyle(value:number) {
-    const alpha = .16 + Math.abs(value) * .74;
-    return { background:value >= 0 ? `rgba(239,51,64,${alpha})` : `rgba(48,174,232,${alpha})` };
+  function territoryValues(side:TeamKey) {
+    const values = territory[territoryMode][side];
+    if (territoryHalf === 'full') return values;
+    const shift = territoryHalf === 'first' ? (side === 'home' ? 0 : 2) : (side === 'home' ? 2 : 0);
+    return values.map((_, index) => values[(index + shift) % values.length]);
+  }
+
+  function zoneStyle(value:number, side:TeamKey) {
+    const alpha = .08 + value * .8;
+    return { background:side === 'home' ? `rgba(239,51,64,${alpha})` : `rgba(48,174,232,${alpha})` };
+  }
+
+  function attackLabel(side:TeamKey) {
+    if (territoryHalf === 'full') return side === 'home' ? '1H →  ·  2H ←' : '1H ←  ·  2H →';
+    const attacksRight = (territoryHalf === 'first' && side === 'home') || (territoryHalf === 'second' && side === 'away');
+    return attacksRight ? 'ATTACKING →' : '← ATTACKING';
   }
 
   function pathSegmentStyle(start:{x:number;y:number}, end:{x:number;y:number}) {
@@ -168,7 +189,7 @@ export default function Home() {
   return <main>
     <header className="topbar">
       <a className="brand" href="#top" aria-label="GoalCode home"><span className="brand-ball">●</span><span>GOAL<span>CODE</span></span></a>
-      <nav aria-label="Primary navigation"><a href="#stats">Stats</a><a href="#replay">Replay</a><a href="#lineups">Lineups</a><a href="#tactics">Tactics</a><a href="#players">Players</a></nav>
+      <nav aria-label="Primary navigation"><a href="#lineups">Lineups</a><a href="#replay">Replay</a><a href="#stats">Stats</a><a href="#tactics">Tactics</a><a href="#players">Players</a></nav>
       <span className="verified-header"><i>✓</i> Verified match · bundled</span>
     </header>
 
@@ -176,11 +197,10 @@ export default function Home() {
       <div className="stadium-glow" />
       <p className="competition">Premier League · Matchweek 9 · verified match report</p>
       <div className="scoreboard">
-        <div className="score-team home"><Crest team="home" large /><div><span>HOME</span><h1>Arsenal</h1><p>4–2–3–1</p></div></div>
+        <div className="score-team home"><Crest team="home" large /><div><span>HOME</span><h1>Arsenal</h1><p>4–2–3–1</p><div className="team-scorers"><b>ARSENAL GOALS</b><span>9&apos; Saka</span><span>43&apos; Merino</span></div></div></div>
         <div className="score-centre"><p>FULL TIME</p><strong><b>2</b><i>:</i><b>2</b></strong><span>27 OCT 2024 · EMIRATES STADIUM · 60,383</span></div>
-        <div className="score-team away"><div><span>AWAY</span><h1>Liverpool</h1><p>4–2–3–1</p></div><Crest team="away" large /></div>
+        <div className="score-team away"><div><span>AWAY</span><h1>Liverpool</h1><p>4–2–3–1</p><div className="team-scorers"><b>LIVERPOOL GOALS</b><span>18&apos; Van Dijk</span><span>81&apos; Salah</span></div></div><Crest team="away" large /></div>
       </div>
-      <div className="goal-strip"><span>9&apos; Saka</span><span>18&apos; Van Dijk</span><span>43&apos; Merino</span><span>81&apos; Salah</span></div>
       <div className="quick-stats"><div><span>ARS</span><strong>0.92</strong><small>EXPECTED GOALS</small><strong>0.81</strong><span>LIV</span></div><div><span>ARS</span><strong>44.7%</strong><small>POSSESSION</small><strong>55.3%</strong><span>LIV</span></div><div><span>ARS</span><strong>9</strong><small>SHOTS</small><strong>9</strong><span>LIV</span></div></div>
     </section>
 
@@ -188,20 +208,21 @@ export default function Home() {
       <div className="source-ribbon"><span><b>REAL MATCH DATA</b> No CSV upload needed. The verified event feed is built into GoalCode.</span><span>Premier League · StatMuse match log · Opta xG</span></div>
 
       <section className="section-block stats-section" id="stats">
-        <div className="section-heading"><div><p className="kicker">1 · TEAM STATS</p><h2>What happened in the match</h2><p>Real figures from Arsenal 2–2 Liverpool on 27 October 2024.</p></div><span className="data-quality">SOURCE CHECK <b>✓</b></span></div>
+        <div className="section-heading"><div><p className="kicker">3 · TEAM STATS</p><h2>What happened in the match</h2><p>Real figures from Arsenal 2–2 Liverpool on 27 October 2024.</p></div><span className="data-quality">SOURCE CHECK <b>✓</b></span></div>
         <div className="stats-card"><div className="stats-teams"><div><Crest team="home"/><strong>Arsenal</strong><span>HOME</span></div><p>TEAM STATS</p><div><span>AWAY</span><strong>Liverpool</strong><Crest team="away"/></div></div><div className="stat-list">{teamStats.map(stat => {const homeWins=stat.lower?stat.h<stat.a:stat.h>stat.a;const awayWins=stat.lower?stat.a<stat.h:stat.a>stat.h;const total=stat.h+stat.a||1;return <div className="stat-row" key={stat.label}><strong className={homeWins?'winner home':''}>{stat.home}</strong><div><span>{stat.label}</span><i><b className="home" style={{width:`${stat.h/total*100}%`}}/><b className="away" style={{width:`${stat.a/total*100}%`}}/></i></div><strong className={awayWins?'winner away':''}>{stat.away}</strong></div>})}</div></div>
       </section>
 
       <section className="section-block simple-replay-section" id="replay">
-        <div className="section-heading"><div><p className="kicker">2 · INTERACTIVE REPLAY</p><h2>See where control happened—then replay each goal</h2><p>Red zones belong to Arsenal. Blue zones belong to Liverpool. Darker colour means stronger control.</p></div><span className="interactive-badge">● SIMPLE MODE</span></div>
-        <div className="territory-explainer"><span className="home"><i/> ARSENAL CONTROL</span><span className="away"><i/> LIVERPOOL CONTROL</span><p>Choose what you want the pitch to show:</p></div>
+        <div className="section-heading"><div><p className="kicker">2 · INTERACTIVE REPLAY</p><h2>One team, one map, one clear direction</h2><p>See where each side had the ball, touched it and pressed—without mixing both teams on one pitch.</p></div><span className="interactive-badge">● SIMPLE MODE</span></div>
+        <div className="territory-explainer"><span className="home"><i/> ARSENAL MAP</span><span className="away"><i/> LIVERPOOL MAP</span><p>Darker colour = more activity in that area.</p></div>
         <div className="territory-modes" role="group" aria-label="Territory metric">{(['Possession','Touches','xT','Progression','Pressing'] as TerritoryMode[]).map(mode=><button key={mode} className={territoryMode===mode?'active':''} onClick={()=>setTerritoryMode(mode)}>{mode}</button>)}</div>
-        <div className="territory-card"><div className="territory-pitch"><div className="zone-grid clear-zones">{territory[territoryMode].map((value,index)=><span key={index} style={zoneStyle(value)}><b>{value>=0?'ARS':'LIV'}</b><small>{Math.round(Math.abs(value)*100)}% influence</small></span>)}</div><div className="replay-lines"><i className="half"/><i className="circle"/><i className="box left"/><i className="box right"/></div></div><aside><p className="kicker">NOW SHOWING</p><h3>{territoryMode}</h3><p>{territoryMode==='Possession'?'Where each team sustained the ball most often. Liverpool had 55.3% overall possession.':territoryMode==='Touches'?'Where each team’s recorded actions were concentrated across the pitch.':territoryMode==='xT'?'Modeled zones where possession was most likely to increase attacking threat.':territoryMode==='Progression'?'The lanes used to move the ball toward the opposition goal.':'Where each team applied the strongest pressure to the ball.'}</p><strong>RED = ARSENAL</strong><strong className="blue">BLUE = LIVERPOOL</strong></aside></div>
+        <div className="half-switch" role="group" aria-label="Select match half"><button className={territoryHalf==='first'?'active':''} onClick={()=>setTerritoryHalf('first')}>FIRST HALF</button><button className={territoryHalf==='second'?'active':''} onClick={()=>setTerritoryHalf('second')}>SECOND HALF</button><button className={territoryHalf==='full'?'active':''} onClick={()=>setTerritoryHalf('full')}>FULL MATCH</button><span>Teams switch ends at half-time</span></div>
+        <div className="team-territory-grid">{(['home','away'] as TeamKey[]).map(side=><article className={`team-territory ${side}`} key={side}><header><div><Crest team={side}/><span><small>{side==='home'?'ARSENAL':'LIVERPOOL'}</small><strong>{territoryMode}</strong></span></div><b>{attackLabel(side)}</b></header><div className="territory-pitch"><div className="zone-grid clear-zones">{territoryValues(side).map((value,index)=><span key={index} style={zoneStyle(value,side)}><small>{Math.round(value*100)}</small></span>)}</div><div className="replay-lines"><i className="half"/><i className="circle"/><i className="box left"/><i className="box right"/></div><div className={`attack-arrow ${territoryHalf==='full'?'both':''}`}>{attackLabel(side)}</div></div><footer><b>{territoryMode==='Possession'?'Most time on the ball':territoryMode==='Touches'?'Most touches':territoryMode==='Pressing'?'Strongest pressure':'Highest activity'}</b><span>{side==='home'?'Red':'Blue'} glow shows where {side==='home'?'Arsenal':'Liverpool'} were most active.</span></footer></article>)}</div>
 
-        <div className="goal-replay-heading"><div><p className="kicker">GOAL JOURNEYS</p><h3>Pick a goal. Press play. Follow the red ball.</h3></div><span>ONLY 3 STEPS PER GOAL</span></div>
+        <div className="goal-replay-heading"><div><p className="kicker">GOAL JOURNEYS</p><h3>Pick a goal. Press play. Watch the ball hit the net.</h3></div><span>5 CLEAR STEPS PER GOAL</span></div>
         <div className="goal-selector">{goalStories.map((goal,index)=><button key={goal.id} className={selectedGoal===index?'active':''} onClick={()=>{setSelectedGoal(index);setGoalStep(0);setPlaying(false)}}><b>{goal.minute}&apos;</b><span>{allPlayers.find(player=>player.id===goal.id)?.short}</span><small>{goal.score}</small></button>)}</div>
         <div className="simple-replay">
-          <div className="goal-journey-pitch"><div className="replay-lines"><i className="half"/><i className="circle"/><i className="box left"/><i className="box right"/></div>{selectedPath.slice(0,-1).map((step,index)=><i key={index} className={`path-segment ${index<goalStep?'complete':''}`} style={pathSegmentStyle(step,selectedPath[index+1])}/>) }{selectedPath.map((step,index)=><button key={step.actor+index} className={`journey-node ${index===goalStep?'active':''} ${index<goalStep?'complete':''}`} style={{left:`${step.x}%`,top:`${step.y}%`}} onClick={()=>{setGoalStep(index);setPlaying(false)}}><b>{index+1}</b><span>{step.actor}</span><small>{step.action}</small></button>)}<span className="big-red-ball" style={{left:`${selectedPath[goalStep].x}%`,top:`${selectedPath[goalStep].y}%`}}>●</span><div className={`goal-mouth ${selectedScorer.team}`}>GOAL</div></div>
+          <div className={`goal-journey-pitch ${goalComplete?'goal-scored':''}`}><div className="replay-lines"><i className="half"/><i className="circle"/><i className="box left"/><i className="box right"/></div>{selectedPath.slice(0,-1).map((step,index)=><i key={index} className={`path-segment ${index<goalStep?'complete':''}`} style={pathSegmentStyle(step,selectedPath[index+1])}/>) }{selectedPath.map((step,index)=><button key={step.actor+index} className={`journey-node ${index===goalStep?'active':''} ${index<goalStep?'complete':''} ${index===selectedPath.length-1?'net-step':''}`} style={{left:`${step.x}%`,top:`${step.y}%`}} onClick={()=>{setGoalStep(index);setPlaying(false)}}><b>{index+1}</b><span>{step.actor}</span><small>{step.action}</small></button>)}<span className="big-red-ball" style={{left:`${selectedPath[goalStep].x}%`,top:`${selectedPath[goalStep].y}%`}}>●</span><div className={`goal-mouth ${selectedScorer.team}`}>NET</div>{goalComplete&&<div className={`goal-celebration ${selectedScorer.team}`} aria-label="Goal celebration"><strong>GOAL!</strong>{Array.from({length:18},(_,index)=><i key={index} style={{'--burst':index} as CSSProperties}/>)}</div>}</div>
           <aside className={`goal-result ${selectedScorer.team}`}><img src={selectedScorer.photo} alt={selectedScorer.name}/><p>{selectedGoalStory.minute}&apos; · {selectedGoalStory.score}</p><h3>{selectedScorer.name}</h3><strong>GOALSCORER</strong><p>{selectedGoalStory.detail}</p><dl><div><dt>Assist</dt><dd>{selectedGoalStory.assist}</dd></div><div><dt>Finish</dt><dd>{selectedGoalStory.finish}</dd></div></dl></aside>
           <div className="journey-controls"><button className="play-button" onClick={()=>{if(goalStep>=selectedPath.length-1)setGoalStep(0);setPlaying(value=>!value)}}>{playing?'Ⅱ Pause':'▶ Play goal'}</button>{selectedPath.map((step,index)=><button key={index} className={goalStep===index?'active':''} onClick={()=>{setGoalStep(index);setPlaying(false)}}><b>STEP {index+1}</b><span>{step.action}</span></button>)}</div>
         </div>
@@ -209,7 +230,7 @@ export default function Home() {
       </section>
 
       <section className="section-block lineups-section" id="lineups">
-        <div className="section-heading"><div><p className="kicker">3 · LINEUPS</p><h2>Verified starting XIs</h2><p>Select any player to see their correct photo, position, country and real match output.</p></div></div>
+        <div className="section-heading"><div><p className="kicker">1 · LINEUPS</p><h2>Verified starting XIs</h2><p>Select any player to see their correct photo, position, country and real match output.</p></div></div>
         <div className="lineup-columns">{([{key:'home' as TeamKey,name:'Arsenal',shape:'4–2–3–1',players:homePlayers},{key:'away' as TeamKey,name:'Liverpool',shape:'4–2–3–1',players:awayPlayers}]).map(side=><div className={`lineup-card ${side.key}`} key={side.key}><div className="lineup-title"><Crest team={side.key}/><div><span>{side.name.toUpperCase()}</span><strong>{side.shape}</strong></div><em>XI</em></div>{side.players.map(player=><button className="lineup-player" key={player.id} onClick={()=>setSelectedPlayer(player)}><b>{player.number}</b><img src={player.photo} alt=""/><span><strong>{player.name}</strong><small>{player.position} · {player.flag} {player.country}</small></span><em>{player.rating.toFixed(1)}</em><i>›</i></button>)}</div>)}</div>
         <p className="image-credit">Player identities checked against the Premier League registry.</p>
       </section>
@@ -222,10 +243,10 @@ export default function Home() {
 
       <section className="section-block performance-section" id="players">
         <div className="section-heading"><div><p className="kicker">5 · REAL MATCH CARDS</p><h2>The players who shaped the game</h2><p>Ratings and standout numbers from this match—not season projections.</p></div><span className="plain-language">CLICK TO EXPAND</span></div>
-        <div className="performance-grid">{performanceCards.map(card=>{const player=allPlayers.find(item=>item.id===card.id)!;return <button className={`performance-card ${player.team}`} key={card.id} onClick={()=>setSelectedPlayer(player)}><div className="card-top"><span>{player.team==='home'?'ARS':'LIV'} · #{player.number}</span><b>{player.rating.toFixed(1)}</b></div><div className="card-image"><span className="card-number">{player.number}</span><img src={player.photo} alt={player.name}/></div><div className="card-copy"><small>{player.position}</small><h3>{player.name}</h3><p>{player.flag} {player.country} · {player.role}</p></div><div className="card-metrics">{card.metrics.map(metric=><span key={metric[1]}><strong>{metric[0]}</strong><small>{metric[1]}</small></span>)}</div><div className="card-badges">{card.badges.map(badge=><span key={badge}>{badge}</span>)}</div><em>Open full performance report →</em></button>})}</div>
+        <div className="performance-grid">{performanceCards.map(card=>{const player=allPlayers.find(item=>item.id===card.id)!;return <button className={`performance-card ${player.team}`} key={card.id} onClick={()=>setSelectedPlayer(player)}><div className="card-top"><span>{player.team==='home'?'ARS':'LIV'} · #{player.number}</span><b>{player.rating.toFixed(1)}</b></div><div className="card-image"><span className="card-number">{player.number}</span><img src={player.photo} alt={player.name}/></div><div className="card-copy"><small>{player.position}</small><h3>{player.name}</h3><p>{player.flag} {player.country} · {player.role}</p></div><div className="card-metrics">{card.metrics.map(metric=><span key={metric[1]}><strong>{metric[0]}</strong><small>{metric[1]}</small></span>)}</div><div className="card-badges">{card.badges.map(badge=><span key={badge.label}><b>{badge.icon}</b><em>{badge.label}</em></span>)}</div><em>Open full performance report →</em></button>})}</div>
       </section>
     </div>
 
-    {selectedPlayer && <div className="modal-backdrop" role="presentation" onMouseDown={()=>setSelectedPlayer(null)}><section className={`player-modal ${selectedPlayer.team}`} role="dialog" aria-modal="true" aria-label={`${selectedPlayer.name} profile`} onMouseDown={event=>event.stopPropagation()}><button className="modal-close" onClick={()=>setSelectedPlayer(null)} aria-label="Close player profile">×</button><div className="profile-hero"><span className="profile-number">{selectedPlayer.number}</span><img src={selectedPlayer.photo} alt={selectedPlayer.name}/><Crest team={selectedPlayer.team}/></div><div className="profile-body"><p>{selectedPlayer.team==='home'?'ARSENAL':'LIVERPOOL'} · 27 OCT 2024</p><h2>{selectedPlayer.name}</h2><div className="profile-meta"><span><small>POSITION</small><strong>{selectedPlayer.position}</strong></span><span><small>COUNTRY</small><strong>{selectedPlayer.flag} {selectedPlayer.country}</strong></span><span><small>ROLE</small><strong>{selectedPlayer.role}</strong></span></div><div className="profile-stats"><span><strong>{selectedPlayer.rating.toFixed(1)}</strong><small>MATCH RATING</small></span><span><strong>{selectedPlayer.minutes}</strong><small>MINUTES</small></span><span><strong>{selectedPlayer.goals}+{selectedPlayer.assists}</strong><small>GOALS + ASSISTS</small></span></div>{selectedPerformance&&<><div className="profile-badges">{selectedPerformance.badges.map(badge=><span key={badge}>{badge}</span>)}</div><div className="expanded-metrics">{selectedPerformance.metrics.map(metric=><span key={metric[1]}><small>{metric[1]}</small><strong>{metric[0]}</strong></span>)}</div></>}<button className="close-profile" onClick={()=>setSelectedPlayer(null)}>Back to match analysis</button></div></section></div>}
+    {selectedPlayer && <div className="modal-backdrop" role="presentation" onMouseDown={()=>setSelectedPlayer(null)}><section className={`player-modal ${selectedPlayer.team}`} role="dialog" aria-modal="true" aria-label={`${selectedPlayer.name} profile`} onMouseDown={event=>event.stopPropagation()}><button className="modal-close" onClick={()=>setSelectedPlayer(null)} aria-label="Close player profile">×</button><div className="profile-hero"><span className="profile-number">{selectedPlayer.number}</span><img src={selectedPlayer.photo} alt={selectedPlayer.name}/><Crest team={selectedPlayer.team}/></div><div className="profile-body"><p>{selectedPlayer.team==='home'?'ARSENAL':'LIVERPOOL'} · 27 OCT 2024</p><h2>{selectedPlayer.name}</h2><div className="profile-meta"><span><small>POSITION</small><strong>{selectedPlayer.position}</strong></span><span><small>COUNTRY</small><strong>{selectedPlayer.flag} {selectedPlayer.country}</strong></span><span><small>ROLE</small><strong>{selectedPlayer.role}</strong></span></div><div className="profile-stats"><span><strong>{selectedPlayer.rating.toFixed(1)}</strong><small>MATCH RATING</small></span><span><strong>{selectedPlayer.minutes}</strong><small>MINUTES</small></span><span><strong>{selectedPlayer.goals}+{selectedPlayer.assists}</strong><small>GOALS + ASSISTS</small></span></div>{selectedPerformance&&<><div className="profile-badges">{selectedPerformance.badges.map(badge=><span key={badge.label}>{badge.icon} {badge.label}</span>)}</div><div className="expanded-metrics">{selectedPerformance.metrics.map(metric=><span key={metric[1]}><small>{metric[1]}</small><strong>{metric[0]}</strong></span>)}</div></>}<button className="close-profile" onClick={()=>setSelectedPlayer(null)}>Back to match analysis</button></div></section></div>}
   </main>;
 }

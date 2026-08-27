@@ -2,7 +2,7 @@
 
 GoalCode is an interactive football match-intelligence platform that turns real match data into clear visual stories. Search a match, inspect the verified starting XIs, replay every goal step by step, compare territory and pressing, and explore how each team changed shape.
 
-**Live demo:** [goalcode-football-lab.vedsantosh4948.chatgpt.site](https://goalcode-football-lab.vedsantosh4948.chatgpt.site)
+**Deployment:** The repository is ready for a future Render deployment.
 
 ![GoalCode match library](public/screenshots/goalcode-home.png)
 
@@ -47,7 +47,7 @@ Exact match facts are treated as verified data. Tactical shapes, territory inten
 - TypeScript
 - Vinext / Vite
 - CSS animations and responsive layouts
-- OpenAI Sites deployment
+- Render-ready production build
 
 ## Run locally
 

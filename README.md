@@ -9,6 +9,8 @@ GoalCode is an interactive football match-intelligence platform that turns real 
 ## What you can explore
 
 - Searchable match library with season and competition filters
+- StatsBomb Premier League archive with 418 real matches
+- Event-derived xG, shot locations, passing and starting lineups loaded on demand
 - Real scorelines, lineups, scorers and team statistics
 - Five-step animated goal journeys with a visible ball path and goal celebration
 - Separate team territory maps for possession, touches, xT, progression and pressing
@@ -19,6 +21,12 @@ GoalCode is an interactive football match-intelligence platform that turns real 
 - Match-specific source attribution
 
 ## Included matches
+
+### StatsBomb Premier League archive
+
+- Complete 2015/16 season: 380 matches
+- Arsenal's 2003/04 Invincibles season: 38 matches
+- Real event files and starting lineups load when an archive match is opened
 
 ### Arsenal 2–2 Liverpool — 27 October 2024
 
@@ -34,12 +42,13 @@ Hull City's opening-day Premier League win, featuring goals from Semi Ajayi and 
 
 GoalCode combines public match records from:
 
+- [StatsBomb Open Data](https://github.com/hudl/open-data) for the historical Premier League match index, event coordinates, xG and lineups
 - [Opta Analyst](https://theanalyst.com/articles/hull-city-vs-manchester-united-stats-premier-league-08-2026)
 - [StatMuse Football](https://www.statmuse.com/fc/match/8-22-2026-hul-vs-mun-112764)
 - [Premier League player registry and assets](https://www.premierleague.com/)
 - Public match reports used to verify goal sequences
 
-Exact match facts are treated as verified data. Tactical shapes, territory intensity and drawn goal paths are clearly presented as event-based visual reconstructions when full tracking coordinates are not publicly available.
+Exact match facts are treated as verified data. StatsBomb-derived figures are calculated directly from its public event files and attributed in the interface. Tactical shapes, territory intensity and drawn goal paths are clearly presented as event-based visual reconstructions when full tracking coordinates are not publicly available.
 
 ## Technology
 
@@ -66,7 +75,7 @@ npm run build
 
 ## Project direction
 
-The next stage is to connect a broader football data API so GoalCode can load seasons and matches dynamically instead of bundling each report. The interface is already structured around a reusable match library and match-specific data sources.
+The next stage is to connect a current-season fixtures API alongside the historical StatsBomb archive. Current-season player-total datasets can enrich player profiles, but event-level data is still required for shot maps, xG and replay features.
 
 ---
 

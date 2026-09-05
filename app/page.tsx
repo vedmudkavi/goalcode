@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type CSSProperties } from 'react';
+import StatsBombArchive from '@/components/statsbomb-archive';
 
 type TeamKey = 'home' | 'away';
 type MatchKey = 'ars-liv-2024' | 'hul-mun-2026';
@@ -242,6 +243,7 @@ export default function Home() {
   const [selectedGoal, setSelectedGoal] = useState(0);
   const [goalStep, setGoalStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [archiveActive, setArchiveActive] = useState(false);
 
   const isHullMatch = activeMatch === 'hul-mun-2026';
   const match = matchCatalog[activeMatch];
@@ -300,15 +302,16 @@ export default function Home() {
   });
 
   function chooseMatch(key:MatchKey) {
+    setArchiveActive(false);
     setActiveMatch(key);setTeam('home');setPhase('starting');setSelectedGoal(0);setGoalStep(0);setPlaying(false);setSelectedPlayer(null);
     window.setTimeout(()=>document.querySelector('.match-stage')?.scrollIntoView({behavior:'smooth'}),50);
   }
 
-  return <main className={isHullMatch?'hull-match':''}>
+  return <main className={`${isHullMatch?'hull-match ':''}${archiveActive?'archive-active':''}`}>
     <header className="topbar">
       <a className="brand" href="#top" aria-label="GoalCode home"><span className="brand-ball">●</span><span>GOAL<span>CODE</span></span></a>
-      <nav aria-label="Primary navigation"><a href="#lineups">Lineups</a><a href="#replay">Replay</a><a href="#stats">Stats</a><a href="#tactics">Tactics</a><a href="#players">Players</a></nav>
-      <span className="verified-header"><i>✓</i> Verified match · bundled</span>
+      <nav aria-label="Primary navigation"><a href={archiveActive?'#sb-lineups':'#lineups'}>Lineups</a><a href={archiveActive?'#sb-replay':'#replay'}>Replay</a><a href={archiveActive?'#sb-stats':'#stats'}>Stats</a><a href={archiveActive?'#sb-tactics':'#tactics'}>Tactics</a><a href={archiveActive?'#sb-players':'#players'}>Players</a></nav>
+      <span className="verified-header"><i>✓</i> {archiveActive?'StatsBomb Open Data':'Verified match · bundled'}</span>
     </header>
 
     <section className="match-finder" aria-labelledby="match-finder-title">
@@ -316,6 +319,7 @@ export default function Home() {
       <div className="finder-controls"><label><span>SEARCH TEAMS</span><input value={searchQuery} onChange={event=>setSearchQuery(event.target.value)} placeholder="Try Arsenal, Hull or United…"/></label><label><span>SEASON</span><select value={seasonFilter} onChange={event=>setSeasonFilter(event.target.value)}><option>All seasons</option><option>2024/25</option><option>2026/27</option></select></label><label><span>COMPETITION</span><select value={competitionFilter} onChange={event=>setCompetitionFilter(event.target.value)}><option>All competitions</option><option>Premier League</option></select></label></div>
       <div className="match-library">{filteredMatches.map(([key,item])=><button key={key} className={`library-match ${activeMatch===key?'active':''}`} onClick={()=>chooseMatch(key)}><div><Crest club={item.homeClub}/><span><small>{item.date} · {item.season}</small><strong>{item.homeName}</strong></span><b>{item.homeScore}</b></div><em>FULL TIME · {item.competition}</em><div><Crest club={item.awayClub}/><span><small>{item.stadium}</small><strong>{item.awayName}</strong></span><b>{item.awayScore}</b></div><footer><span>✓ VERIFIED SOURCES</span><strong>OPEN MATCH REPORT →</strong></footer></button>)}</div>
       {!filteredMatches.length&&<p className="empty-results">No matches found. Try clearing a filter.</p>}
+      <StatsBombArchive active={archiveActive} onActiveChange={setArchiveActive} />
     </section>
 
     <section className="match-stage" id="top">

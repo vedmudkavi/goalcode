@@ -8,3 +8,6 @@ services:
     startCommand: npm start
     healthCheckPath: /
     autoDeployTrigger: commit
+    envVars:
+      - key: SITE_URL
+        value: https://goalcode.onrender.com

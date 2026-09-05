@@ -2,7 +2,14 @@
 
 GoalCode is an interactive football match-intelligence platform that turns real match data into clear visual stories. Search a match, inspect the verified starting XIs, replay every goal step by step, compare territory and pressing, and explore how each team changed shape.
 
-**Live demo:** Deployment in progress on Render.
+[**Open the live GoalCode demo →**](https://goalcode.onrender.com)
+
+[![Live on Render](https://img.shields.io/badge/Live-Render-7b61ff?style=flat-square)](https://goalcode.onrender.com)
+[![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square)](https://www.typescriptlang.org/)
+[![StatsBomb Open Data](https://img.shields.io/badge/Data-StatsBomb_Open_Data-b7f52e?style=flat-square)](https://github.com/statsbomb/open-data)
+
+> The Render free tier may need up to a minute to wake after a period of inactivity.
 
 ![GoalCode match library](public/screenshots/goalcode-home.png)
 
@@ -66,6 +73,10 @@ npm run dev
 ```
 
 Open the local URL printed by the development server.
+
+## Deploy
+
+GoalCode includes a [`render.yaml`](render.yaml) Blueprint. Fork the repository, create a new Render Blueprint, and select the repository to build and run the application automatically.
 
 ## Production build
 

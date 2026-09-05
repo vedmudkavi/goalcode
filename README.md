@@ -2,7 +2,7 @@
 
 GoalCode is an interactive football match-intelligence platform that turns real match data into clear visual stories. Search a match, inspect the verified starting XIs, replay every goal step by step, compare territory and pressing, and explore how each team changed shape.
 
-**Deployment:** The repository is ready for a future Render deployment.
+**Live demo:** Deployment in progress on Render.
 
 ![GoalCode match library](public/screenshots/goalcode-home.png)
 
@@ -12,7 +12,7 @@ GoalCode is an interactive football match-intelligence platform that turns real 
 - StatsBomb Premier League archive with 418 real matches
 - Event-derived xG, shot locations, passing and starting lineups loaded on demand
 - Real scorelines, lineups, scorers and team statistics
-- Five-step animated goal journeys with a visible ball path and goal celebration
+- Three-step animated goal journeys with a visible ball path, net animation and goal celebration
 - Separate team territory maps for possession, touches, xT, progression and pressing
 - First-half and second-half attacking directions
 - Interactive formation evolution
